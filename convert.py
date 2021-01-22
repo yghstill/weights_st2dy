@@ -8,19 +8,19 @@ from ppdet.utils.download import get_weights_path
 
 class Load(paddle.nn.Layer):
      def __init__(self):
-	 super(Load, self).__init__()
+        super(Load, self).__init__()
 
      def forward(self, filename):
-	 weight = self.create_parameter(
-	     shape=[1],
-	     dtype='float32',
-	     default_initializer=fluid.initializer.ConstantInitializer(0.0))
-	 self._helper.append_op(
-	     type='load',
-	     inputs={},
-	     outputs={'Out': [weight]},
-	     attrs={'file_path': filename})
-	 return weight
+        weight = self.create_parameter(
+            shape=[1],
+            dtype='float32',
+            default_initializer=fluid.initializer.ConstantInitializer(0.0))
+        self._helper.append_op(
+            type='load',
+            inputs={},
+            outputs={'Out': [weight]},
+            attrs={'file_path': filename})
+        return weight
 
 def convert(weights, weight_name_map_file, target_name):
     weight_name_map = {}
@@ -42,9 +42,10 @@ def convert(weights, weight_name_map_file, target_name):
             else:
                 print("warning: static weight file {} not found".format(k))
     else:
-        src = pickle.load(open(weights))
-        for k, v in weight_name_map.items():
-            dst[v] = src[k]
+        with open(weights, 'rb') as f:
+            src = pickle.load(f, encoding='latin1')
+            for k, v in weight_name_map.items():
+                dst[v] = src[k]
     pickle.dump(dst, open(target_name, 'wb'), protocol=2)
 
 
